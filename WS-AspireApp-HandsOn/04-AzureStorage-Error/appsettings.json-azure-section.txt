@@ -1,0 +1,7 @@
+"Azure": {
+  "SubscriptionId": "<your-subscription-id>",
+  "ResourceGroupPrefix": "ws-aspire-ludur",
+  "Location": "polandcentral",
+  "AllowResourceGroupCreation": true,
+  "CredentialSource": "InteractiveBrowser"
+}

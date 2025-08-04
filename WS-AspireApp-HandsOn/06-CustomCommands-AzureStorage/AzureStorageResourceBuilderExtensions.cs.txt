@@ -1,0 +1,120 @@
+using Aspire.Hosting.Azure;
+using Azure.Identity;
+using Azure.Storage.Blobs;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
+
+namespace WS_AspireApp.AppHost;
+
+internal static class AzureStorageResourceBuilderExtensions
+{
+    public static IResourceBuilder<AzureStorageResource> WithAddFileCommand(
+        this IResourceBuilder<AzureStorageResource> builder)
+    {
+        CommandOptions commandOptions = new()
+        {
+            IconName = "Add",
+            IconVariant = IconVariant.Filled,
+            UpdateState = OnUpdateResourceState,
+            ConfirmationMessage = "Are you sure you want to add a file to the Azure Storage container?",
+            Description = "Adds a file to the Azure Storage container. The file is hardcoded in the command and will be uploaded to the 'files' container.",
+            IsHighlighted = true
+        };
+
+        builder.WithCommand(
+            name: "addFile",
+            displayName: "Add File",
+            executeCommand: context => OnRunAddFileCommandAsync(builder, context),
+            commandOptions);
+
+        return builder;
+    }
+
+    public static IResourceBuilder<AzureStorageResource> WithClearContainerCommand(
+        this IResourceBuilder<AzureStorageResource> builder)
+    {
+        CommandOptions commandOptions = new()
+        {
+            IconName = "Broom",
+            IconVariant = IconVariant.Filled,
+            UpdateState = OnUpdateResourceState,
+            ConfirmationMessage = "Are you sure you want to clear the Azure Storage container?",
+            Description = "Clears all files from the Azure Storage container. This action cannot be undone.",
+            IsHighlighted = false            
+        };
+
+        builder.WithCommand(
+            name: "clearContainer",
+            displayName: "Clear container",
+            executeCommand: context => OnRunClearContainerCommandAsync(builder, context),
+            commandOptions);
+
+        return builder;
+    }
+
+    private static async Task<ExecuteCommandResult> OnRunAddFileCommandAsync(
+        IResourceBuilder<AzureStorageResource> builder,
+        ExecuteCommandContext context)
+    {
+        if (builder.Resource.Outputs.TryGetValue("blobEndpoint", out var blobEndpoint) && blobEndpoint is string blobEndpointString)
+        {
+            Uri uri = new Uri(blobEndpointString);
+            BlobServiceClient blobServiceClient = new BlobServiceClient(uri, new DefaultAzureCredential());
+            var blobContainer = blobServiceClient.GetBlobContainerClient("files");
+            
+            if (!await blobContainer.ExistsAsync())
+            {
+                await blobContainer.CreateAsync();
+            }
+
+            string filePathToFileToUpload = @"C:\\Users\\nonexisting.txt";
+
+            var blobClient = blobContainer.GetBlobClient(Path.GetFileName(filePathToFileToUpload));
+            using (var fileStream = File.OpenRead(filePathToFileToUpload))
+            {
+                await blobClient.UploadAsync(fileStream, overwrite: true);
+            }
+        }
+        return CommandResults.Success();
+    }
+
+    private static async Task<ExecuteCommandResult> OnRunClearContainerCommandAsync(
+        IResourceBuilder<AzureStorageResource> builder,
+        ExecuteCommandContext context)
+    {
+        if (builder.Resource.Outputs.TryGetValue("blobEndpoint", out var blobEndpoint) && blobEndpoint is string blobEndpointString)
+        {
+            Uri uri = new Uri(blobEndpointString);
+            BlobServiceClient blobServiceClient = new BlobServiceClient(uri);
+            var blobContainer = blobServiceClient.GetBlobContainerClient("files");
+            if (await blobContainer.ExistsAsync())
+            {
+                await foreach (var blobItem in blobContainer.GetBlobsAsync())
+                {
+                    var blobClient = blobContainer.GetBlobClient(blobItem.Name);
+                    await blobClient.DeleteIfExistsAsync();
+                }
+            }
+        }
+
+        return CommandResults.Success();
+    }
+
+    private static ResourceCommandState OnUpdateResourceState(
+        UpdateCommandStateContext context)
+    {
+        var logger = context.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
+                "Updating resource state: {ResourceSnapshot}",
+                context.ResourceSnapshot);
+        }
+
+        return context.ResourceSnapshot.HealthStatus is HealthStatus.Healthy
+            ? ResourceCommandState.Enabled
+            : ResourceCommandState.Disabled;
+    }
+}

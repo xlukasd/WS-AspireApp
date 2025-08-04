@@ -1,0 +1,24 @@
+app.MapGet("/storedfiles", async (ILogger logger, BlobServiceClient blobServiceClient, DummyServiceHttpClient dummyServiceHttpClient) =>
+{
+    var dummyData = await dummyServiceHttpClient.GetDummyDataAsync();
+
+    logger.LogInformation("/storedfiles endpoint. Dummy data retrieved: {DummyData}", dummyData);
+
+    var containerClient = blobServiceClient.GetBlobContainerClient("files");
+
+    var containerExists = await containerClient.ExistsAsync();
+
+    if (!containerExists)
+    {
+        return new List<StoredFile>();
+    }
+
+    var blobs = new List<StoredFile>();
+    await foreach (var blobItem in containerClient.GetBlobsAsync())
+    {
+        blobs.Add(new StoredFile(blobItem.Name, blobItem.Properties.ContentLength));
+    }
+
+    return blobs;
+})
+.WithName("GetStoredFiles");

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-WS_AspireApp.MessageProcessor-c178f981-ce70-442d-9be6-faef846ce4a7</UserSecretsId>
+    <RootNamespace>WS_AspireApp.MessageProcessor</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.RabbitMQ.Client" Version="9.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WS-AspireApp.ServiceDefaults\WS-AspireApp.ServiceDefaults.csproj" />
+  </ItemGroup>
+</Project>

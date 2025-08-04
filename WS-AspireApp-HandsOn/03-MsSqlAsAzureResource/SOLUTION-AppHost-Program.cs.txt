@@ -1,0 +1,14 @@
+var weatherForecastSql = builder.AddAzureSqlServer("weatherforecastdbserver")
+    .ConfigureInfrastructure(infra =>
+    {
+        var provisionable = infra.GetProvisionableResources().OfType<SqlServer>().Single();
+        provisionable.AdministratorLogin = "sqladmin";
+        provisionable.AdministratorLoginPassword = "WsLudur123";
+    });
+
+var weatherForecastDatabase = weatherForecastSql
+    .AddDatabase("WeatherForecastDb", "WS-Aspire-Database");
+
+var apiService = builder.AddProject<Projects.WS_AspireApp_ApiService>("apiservice")
+    .WithReference(weatherForecastDatabase)
+    .WaitFor(weatherForecastDatabase);

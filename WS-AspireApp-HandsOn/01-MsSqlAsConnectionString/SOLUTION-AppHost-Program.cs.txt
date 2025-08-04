@@ -1,0 +1,4 @@
+var weatherForecastDatabase = builder.AddConnectionString("WeatherForecastDb");
+
+var apiService = builder.AddProject<Projects.WS_AspireApp_ApiService>("apiservice")
+    .WithReference(weatherForecastDatabase);

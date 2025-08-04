@@ -1,0 +1,3 @@
+"ConnectionStrings": {
+    "WeatherForecastDb": "Server=TF-198033363952\\SQLEXPRESS;Database=WS-Aspire-Database;Trusted_Connection=True;TrustServerCertificate=True;"
+  }

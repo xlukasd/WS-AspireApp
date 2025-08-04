@@ -1,0 +1,6 @@
+var rabbitMq = builder
+    .AddRabbitMQ("rabbitmqmessaging", builder.AddParameter("username", "lukas"), builder.AddParameter("password", "durovsky"));
+
+var dummyService = builder.AddProject<Projects.WS_AspireApp_DummyService>("dummyservice")
+    .WithReference(rabbitMq)
+    .WaitFor(rabbitMq);

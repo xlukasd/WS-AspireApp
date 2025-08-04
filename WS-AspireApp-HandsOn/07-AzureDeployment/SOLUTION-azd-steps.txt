@@ -1,0 +1,1 @@
+az sql server ad-only-auth disable --resource-group 'rg-ludur-pub-vs' --name 'weatherforecastdbserver-t3snhkjlcysxe'

@@ -1,0 +1,11 @@
+namespace WS_AspireApp.ApiService;
+
+public class DummyServiceHttpClient(HttpClient httpClient)
+{
+    public async Task<string> GetDummyDataAsync(CancellationToken cancellationToken = default)
+    {
+        var response = await httpClient.GetAsync("/dummy", cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsStringAsync(cancellationToken);
+    }
+}

@@ -1,0 +1,1 @@
+builder.AddSqlServerDbContext<WeatherForecastDbContext>(connectionName: "WeatherForecastDb");

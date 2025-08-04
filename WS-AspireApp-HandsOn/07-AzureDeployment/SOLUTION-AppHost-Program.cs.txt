@@ -1,0 +1,7 @@
+var weatherForecastSql = builder.AddAzureSqlServer("weatherforecastdbserver")
+    .ConfigureInfrastructure(infra =>
+    {
+        var provisionable = infra.GetProvisionableResources().OfType<SqlServer>().Single();
+        provisionable.AdministratorLogin = "sqladmin";
+        provisionable.AdministratorLoginPassword = "WsLudur123";
+    });

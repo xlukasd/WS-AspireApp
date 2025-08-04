@@ -1,0 +1,6 @@
+var azureStorage = builder.AddAzureStorage("storage").ConfigureInfrastructure(infra => {
+    var storageAccount = infra.GetProvisionableResources().OfType<StorageAccount>().Single();
+    storageAccount.AllowSharedKeyAccess = true;
+})
+    .WithAddFileCommand()
+    .WithClearContainerCommand();

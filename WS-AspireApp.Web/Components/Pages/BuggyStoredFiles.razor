@@ -1,0 +1,45 @@
+﻿@page "/buggystoredfiles"
+@attribute [StreamRendering(true)]
+@attribute [OutputCache(Duration = 5)]
+
+@inject StoredFilesApiClient StoredFilesApi
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+<p>This component demonstrates showing data loaded from a backend API service.</p>
+
+@if (storedFiles == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Size (bytes)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var storedFile in storedFiles)
+            {
+                <tr>
+                    <td>@storedFile.Name</td>
+                    <td>@storedFile.SizeInBytes</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private StoredFile[]? storedFiles;
+
+    protected override async Task OnInitializedAsync()
+    {
+        storedFiles = await StoredFilesApi.GetBuggyStoredFiles();
+    }
+}

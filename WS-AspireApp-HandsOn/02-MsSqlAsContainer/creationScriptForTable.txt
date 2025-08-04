@@ -1,0 +1,21 @@
+var creationScript = $$"""
+    IF DB_ID('WS-Aspire-Database') IS NULL
+        CREATE DATABASE [WS-Aspire-Database];
+    GO
+
+    USE [WS-Aspire-Database];
+    GO
+    
+    CREATE TABLE WeatherForecast (
+        Date datetime NOT NULL,
+        TemperatureC int NOT NULL,
+        Summary nvarchar(50) NOT NULL
+    );  
+    GO
+    
+    INSERT INTO WeatherForecast (Date, TemperatureC, Summary) VALUES
+    ('2026-01-01 00:00:00.000', 3, 'May snow in the morning, later clear sky.'),
+    ('2026-01-02 00:00:00.000', 5, 'Sunny day, very good for skiing.'),
+    ('2026-01-03 00:00:00.000', 4, 'Hello from containerized MS SQL server!');
+    GO
+    """;
